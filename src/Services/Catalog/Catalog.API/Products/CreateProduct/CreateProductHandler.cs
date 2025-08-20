@@ -31,7 +31,7 @@ namespace Catalog.API.Products.CreateProduct
             session.Store(product);
             await session.SaveChangesAsync(cancellationToken);
             //return CreateProductResult result
-
+            Console.WriteLine(product.Id);
             return new CreateProductResult(product.Id);
         }
     }

@@ -12,20 +12,26 @@ namespace Catalog.API.Products.CreateProduct
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/products", 
-                async (CreateProductRequest request,ISender sender) =>
+            try
             {
-                var command = request.Adapt<CreateProductCommand>();
-                var result = await sender.Send(command);
-                var response = result.Adapt<CreateProductResponse>();
-                return Results.Created($"/Products/{response.Id}", response);
-            })
-             .WithName("CreateProduct")
-             .Produces<CreateProductResponse>(StatusCodes.Status201Created)
-             .ProducesProblem(StatusCodes.Status400BadRequest)
-             .WithSummary("Create Product")
-             .WithDescription("Create Product");
-            
+                app.MapPost("/products",
+                    async (CreateProductRequest request, ISender sender) =>
+                {
+                    var command = request.Adapt<CreateProductCommand>();
+                    var result =  await sender.Send(command);
+                    var response = result.Adapt<CreateProductResponse>();
+                    return Results.Created($"/Products/{response.Id}", response);
+                })
+                 .WithName("CreateProduct")
+                 .Produces<CreateProductResponse>(StatusCodes.Status201Created)
+                 .ProducesProblem(StatusCodes.Status400BadRequest)
+                 .WithSummary("Create Product")
+                 .WithDescription("Create Product");
+            }
+            catch(Exception e)
+            {
+                throw;
+            }
         }
     }
 }
