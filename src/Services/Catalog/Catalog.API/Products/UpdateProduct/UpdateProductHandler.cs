@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Products.UpdateProduct
+﻿using JasperFx.Events.Daemon;
+
+namespace Catalog.API.Products.UpdateProduct
 {
     public record UpdateProductCommand(Guid Id,
         string Name,
@@ -7,6 +9,18 @@
         string ImageFile,
         decimal Price):ICommand<UpdateProductResult>;
     public record UpdateProductResult(bool IsSuccess);
+
+    public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand> 
+    {
+        public UpdateProductCommandValidator()
+        {
+            RuleFor(x => x.Id).NotEmpty().WithMessage("Id is reuired");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required")
+                .Length(2,150).WithMessage("Name must be between 2 and 150 Characters");
+          
+            RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price must be greater then 0");
+        }
+    }
     internal class UpdateProductCommandHandler(IDocumentSession session,ILogger<UpdateProductCommandHandler> logger) 
         : ICommandHandler<UpdateProductCommand, UpdateProductResult>
     {
@@ -16,7 +30,7 @@
             var product = await session.LoadAsync<Product>(command.Id, cancellationToken);
             if(product is null)
             {
-                throw new ProductNotFoundException();
+                throw new ProductNotFoundException(command.Id);
             }
 
             product.Name = command.Name;
